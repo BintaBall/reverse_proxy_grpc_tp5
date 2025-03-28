@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat WebSocket</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #chat-box { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: auto; padding: 10px; }
+        input, button { margin-top: 10px; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>Client Web Chat (WebSocket)</h2>
+    <div id="chat-box"></div>
+
+    <input type="text" id="room-id" placeholder="ID de la salle" value="room1">
+    <button onclick="getHistory()">Voir l'historique</button>
+
+    <input type="text" id="message" placeholder="Tapez un message...">
+    <button onclick="sendMessage()">Envoyer</button>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8080");
+
+        ws.onopen = () => {
+            console.log("Connecté au WebSocket");
+            document.getElementById("chat-box").innerHTML += "<p><em>Connecté au serveur...</em></p>";
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("Message reçu :", data);
+
+            if (data.history) {
+                document.getElementById("chat-box").innerHTML = "<strong>Historique :</strong><br>";
+                data.history.forEach(msg => {
+                    document.getElementById("chat-box").innerHTML += `<p><strong>${msg.sender_id}:</strong> ${msg.content} <em>(${msg.timestamp})</em></p>`;
+                });
+            } else if (data.chat_message) {
+                document.getElementById("chat-box").innerHTML += `<p><strong>${data.chat_message.sender_id}:</strong> ${data.chat_message.content} <em>(${data.chat_message.timestamp})</em></p>`;
+            } else if (data.error) {
+                alert("Erreur: " + data.error);
+            }
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message");
+            const roomId = document.getElementById("room-id").value;
+            if (messageInput.value.trim() === "") return;
+
+            const message = {
+                chat_message: {
+                    id: Date.now().toString(),
+                    room_id: roomId,
+                    sender_id: "Utilisateur",
+                    content: messageInput.value
+                }
+            };
+            ws.send(JSON.stringify(message));
+            messageInput.value = "";
+        }
+
+        function getHistory() {
+            const roomId = document.getElementById("room-id").value;
+            ws.send(JSON.stringify({ get_history: true, room_id: roomId }));
+        }
+    </script>
+
+</body>
+</html>
