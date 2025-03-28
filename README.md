@@ -64,7 +64,9 @@ Une méthode `GetChatHistory` a été ajoutée pour récupérer les derniers mes
 
 ### Client Web (Bonus)
 Un fichier `client.html` est fourni pour tester le chat via un navigateur. Ce client utilise WebSockets pour envoyer et recevoir des messages en temps réel.
-![Exemple de la page client](C:\Users\hp\Pictures\Screenshots\cleint1.png)
+![Exemple de la page client](images\cleint1.png)
+![Exemple de la page client](images\cleint2.png)
+![Exemple de la page client](images\cleint2.png)
 
 
 
